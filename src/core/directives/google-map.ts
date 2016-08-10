@@ -3,10 +3,13 @@ import {Subscription} from 'rxjs/Subscription';
 
 import {MouseEvent} from '../map-types';
 import {GoogleMapsAPIWrapper} from '../services/google-maps-api-wrapper';
+import {ImageMapTypeManager} from '../services/managers/image-map-type-manager';
 import {LatLng, LatLngLiteral} from '../services/google-maps-types';
 import {LatLngBounds, LatLngBoundsLiteral, MapTypeStyle} from '../services/google-maps-types';
 import {CircleManager} from '../services/managers/circle-manager';
 import {InfoWindowManager} from '../services/managers/info-window-manager';
+import {OverlayViewManager} from '../services/managers/overlay-view-manager';
+import {InfoBoxManager} from '../services/managers/info-box-manager';
 import {MarkerManager} from '../services/managers/marker-manager';
 
 /**
@@ -36,11 +39,12 @@ import {MarkerManager} from '../services/managers/marker-manager';
  */
 @Component({
   selector: 'sebm-google-map',
-  providers: [GoogleMapsAPIWrapper, MarkerManager, InfoWindowManager, CircleManager],
+  providers: [GoogleMapsAPIWrapper, MarkerManager, InfoWindowManager, ImageMapTypeManager, OverlayViewManager, InfoBoxManager, CircleManager],
   inputs: [
     'longitude', 'latitude', 'zoom', 'disableDoubleClickZoom', 'disableDefaultUI', 'scrollwheel',
     'backgroundColor', 'draggableCursor', 'draggingCursor', 'keyboardShortcuts', 'zoomControl',
-    'styles', 'usePanning', 'streetViewControl', 'fitBounds', 'scaleControl'
+    'styles', 'usePanning', 'streetViewControl', 'fitBounds', 'scaleControl',
+    'mapTypeId', 'mapTypeControlOptions', 'boundaries'
   ],
   outputs: [
     'mapClick', 'mapRightClick', 'mapDblClick', 'centerChange', 'idle', 'boundsChange', 'zoomChange'
@@ -205,6 +209,21 @@ export class SebmGoogleMap implements OnChanges, OnInit {
    */
   zoomChange: EventEmitter<number> = new EventEmitter<number>();
 
+  /**
+   * Sets the initial Map mapTypeId
+   */
+  mapTypeId: string;
+
+ /**
+   * Sets the strict boundaries
+   */
+  boundaries: Object;
+
+  /**
+   * Sets the avalible map layers
+   */
+  mapTypeControlOptions: MapTypeControlOptions;
+
   constructor(private _elem: ElementRef, private _mapsWrapper: GoogleMapsAPIWrapper) {}
 
   /** @internal */
@@ -226,13 +245,16 @@ export class SebmGoogleMap implements OnChanges, OnInit {
       zoomControl: this.zoomControl,
       styles: this.styles,
       streetViewControl: this.streetViewControl,
-      scaleControl: this.scaleControl
+      scaleControl: this.scaleControl,
+      mapTypeId: this.mapTypeId,
+      mapTypeControlOptions: this.mapTypeControlOptions
     });
 
     // register event listeners
     this._handleMapCenterChange();
     this._handleMapZoomChange();
     this._handleMapMouseEvents();
+    this._handleMapDragEvent();
     this._handleBoundsChange();
     this._handleIdleEvent();
   }
@@ -315,6 +337,28 @@ export class SebmGoogleMap implements OnChanges, OnInit {
       });
     });
     this._observableSubscriptions.push(s);
+  }
+
+  public _handleMapDragEvent() {
+    this._mapsWrapper.subscribeToMapEvent<void>('dragend').subscribe(() => {
+       this._mapsWrapper.getCenter().then((center: LatLng) => {
+         //setDragBoundaries when draged outside center map
+          var x = this.longitude;
+          var y = this.latitude;
+
+          var maxX = this.boundaries.maxX;
+          var maxY = this.boundaries.maxY;
+          var minX = this.boundaries.minX;
+          var minY = this.boundaries.minY;
+
+          if (x < minX) x = minX;
+          if (x > maxX) x = maxX;
+          if (y < minY) y = minY;
+          if (y > maxY) y = maxY;
+
+          this._mapsWrapper.setCenter({lat: y, lng: x});
+       });
+    });
   }
 
   private _handleBoundsChange() {

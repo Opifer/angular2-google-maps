@@ -7,6 +7,7 @@ import {MapsAPILoader} from './maps-api-loader/maps-api-loader';
 
 // todo: add types for this
 declare var google: any;
+declare var InfoBox: any;
 
 /**
  * Wrapper class that handles the communication with the Google Maps Javascript
@@ -30,6 +31,8 @@ export class GoogleMapsAPIWrapper {
     });
   }
 
+  getMap(): Promise<mapTypes.GoogleMap> { return this._map; }
+
   setMapOptions(options: mapTypes.MapOptions) {
     this._map.then((m: mapTypes.GoogleMap) => { m.setOptions(options); });
   }
@@ -43,6 +46,22 @@ export class GoogleMapsAPIWrapper {
       options.map = map;
       return new google.maps.Marker(options);
     });
+  }
+
+  createOverlayView(options: mapTypes.OverlayViewOptions = <mapTypes.OverlayViewOptions>{}):
+    Promise<mapTypes.OverlayView> {
+      return this._map.then((map: mapTypes.GoogleMap) => {
+        var overlay = new mapTypes.OverlayViewClass(options, google);
+        var overlayView = overlay.getOverlayView();
+        overlayView.setMap(map);
+
+        return overlayView;
+      }
+    );
+  }
+
+  createInfoBox(options?: mapTypes.InfoBoxOptions): Promise<mapTypes.InfoBox> {
+    return this._map.then(() => { return new InfoBox(options); });
   }
 
   createInfoWindow(options?: mapTypes.InfoWindowOptions): Promise<mapTypes.InfoWindow> {
@@ -107,5 +126,22 @@ export class GoogleMapsAPIWrapper {
    */
   triggerMapEvent(eventName: string): Promise<void> {
     return this._map.then((m) => google.maps.event.trigger(m, eventName));
+  }
+
+  setMapTypes(id: string, options: mapTypes.ImageMapTypeOptions): Promise<void> {
+    return this._map.then((map: mapTypes.GoogleMap) => {
+      var mapType = new google.maps.ImageMapType({
+        getTileUrl: options.getTileUrl,
+        tileSize: options.tileSize,
+        maxZoom: options.maxZoom,
+        minZoom: options.minZoom,
+        radius: options.radius,
+        name: options.name,
+        alt: options.alt,
+        opacity: 1
+      });
+
+      map.mapTypes.set(id, mapType);
+    });
   }
 }

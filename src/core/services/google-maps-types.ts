@@ -51,6 +51,24 @@ export interface MarkerLabel {
   text: string;
 }
 
+export interface OverlayView {
+  constructor(): void;
+  setMap(map: GoogleMap): void;
+  draw(): void;
+  onAdd(): void;
+  onRemove(): void;
+  addListener(eventType: string, fn: Function): void;
+  getPosition():LatLng;
+}
+
+export interface OverlayViewOptions {
+  position: LatLng|LatLngLiteral;
+  map?: GoogleMap;
+  objectId?: number;
+  objectContent?: string;
+  class?: string;
+}
+
 export interface Circle extends MVCObject {
   getBounds(): LatLngBounds;
   getCenter(): LatLng;
@@ -128,6 +146,8 @@ export interface MapOptions {
   styles?: MapTypeStyle[];
   streetViewControl?: boolean;
   scaleControl?: boolean;
+  mapTypeId?: string;
+  mapTypeControlOptions?: MapTypeControlOptions;
 }
 
 export interface MapTypeStyle {
@@ -171,6 +191,19 @@ export interface InfoWindow {
   setZIndex(zIndex: number): void;
 }
 
+export interface InfoBox {
+    constructor(opts?: InfoBoxOptions): void;
+    close(): void;
+    getContent(): string | Node;
+    getPosition(): LatLng;
+    getZIndex(): number;
+    open(map?: GoogleMap, anchor?: MVCObject): void;
+    setContent(content: string | Node): void;
+    setOptions(options: InfoBoxOptions): void;
+    setPosition(position: LatLng | LatLngLiteral): void;
+    setZIndex(zIndex: number): void;
+}
+
 export interface MVCObject { addListener(eventName: string, handler: Function): MapsEventListener; }
 
 export interface MapsEventListener { remove(): void; }
@@ -190,4 +223,123 @@ export interface InfoWindowOptions {
   pixelOffset?: Size;
   position?: LatLng|LatLngLiteral;
   zIndex?: number;
+}
+
+export interface MapTypeRegistry { set(id: string, mapType: any): void; }
+
+export interface MapTypeControlOptions { mapTypeIds: string[]; }
+
+export interface ImageMapTypeCoord {
+  x: number;
+  y: number;
+}
+export interface ImageMapTypeTileSize {
+  height: number;
+  width: number;
+}
+
+export interface ImageMapTypeOptions {
+  tileSize?: ImageMapTypeTileSize;
+  maxZoom: number;
+  minZoom: number;
+  radius: number;
+  name: string;
+  alt?: string;
+  getTileUrl(coord: ImageMapTypeCoord, zoom: number): string;
+}
+
+export class OverlayViewClass {
+  public latlng : number;
+  overlayView: any;
+  ID: number;
+  Content: string;
+  class: string;
+
+  constructor(options: any, google: any) {
+    this.latlng = new google.maps.LatLng(options.position.lat, options.position.lng);
+    this.ID = options.objectId;
+    this.Content = options.objectContent;
+    this.class = options.class;
+
+    this.overlayView = new google.maps.OverlayView();
+
+    var self = this;
+
+    this.overlayView.getPosition = function() {
+      var position = self.latlng
+      return position;
+    }
+
+    this.overlayView.remove = function() {
+        if (this.div) {
+    		this.div.parentNode.removeChild(this.div);
+    		this.div = null;
+    	}
+    }
+
+    this.overlayView.draw = function() {
+      var div = this.div;
+
+      if (!div) {
+
+        div = this.div = document.createElement('div');
+
+        div.className = 'marker';
+        if (self.class != null) {
+            div.className += ' marker-'+self.class;
+        }
+
+        div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
+
+        google.maps.event.addDomListener(div, "click", function(event: any) {
+            google.maps.event.trigger(self.overlayView, "click");
+            event.stopPropagation();
+        });
+
+        var panes = this.getPanes();
+            panes.overlayImage.appendChild(div);
+        }
+
+        var point = this.getProjection().fromLatLngToDivPixel(self.latlng);
+
+        if (point) {
+            div.style.left = point.x + 'px';
+            div.style.top = point.y + 'px';
+        }
+      }
+    }
+
+  getOverlayView() : any {
+      return this.overlayView;
+    }
+}
+
+export interface SizeLiteral {
+    height: number;
+    width: number;
+}
+
+export interface InfoBoxOptions {
+    alignBottom?: boolean;
+    boxClass?: string;
+    boxStyle?: BoxStyle;
+    closeBoxMargin?: string;
+    closeBoxURL?: string;
+    content?: string | Node;
+    disableAutoPan?: boolean;
+    enableEventPropagation?: boolean;
+    infoBoxClearance?: Size | SizeLiteral;
+    isHidden?: boolean;
+    maxWidth?: number;
+    pane?: string;
+    pixelOffset?: Size | SizeLiteral;
+    position?: LatLng | LatLngLiteral;
+    visible?: boolean;
+    zIndex?: number;
+}
+
+export interface BoxStyle {
+    background?: string | Node;
+    opacity?: number;
+    width?: string;
 }
