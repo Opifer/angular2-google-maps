@@ -67,6 +67,10 @@ export interface OverlayViewOptions {
   objectId?: number;
   objectContent?: string;
   class?: string;
+  type?: string;
+  color?: string;
+  label?: string;
+  count?: number;
 }
 
 export interface Circle extends MVCObject {
@@ -254,12 +258,21 @@ export class OverlayViewClass {
   ID: number;
   Content: string;
   class: string;
+  type: string;
+  textColor: string;
+  color: string;
+  label: string;
+  count: number;
 
   constructor(options: any, google: any) {
     this.latlng = new google.maps.LatLng(options.position.lat, options.position.lng);
     this.ID = options.objectId;
     this.Content = options.objectContent;
     this.class = options.class;
+    this.type = options.type;
+    this.textColor = options.textColor;
+    this.color = options.color;
+    this.count = options.count;
 
     this.overlayView = new google.maps.OverlayView();
 
@@ -285,6 +298,7 @@ export class OverlayViewClass {
         div = this.div = document.createElement('div');
 
         div.className = 'marker';
+
         if (self.class != null) {
             div.className += ' marker-'+self.class;
         }
@@ -298,6 +312,14 @@ export class OverlayViewClass {
 
         var panes = this.getPanes();
             panes.overlayImage.appendChild(div);
+
+          if (self.type === 'cluster'){
+              div.innerHTML = '<span class="marker-label">'+ self.Content +'</span>' + '<div style="background-color:' + self.color + '" class="cluster-background">'+ '<span style="color:' + self.textColor + '" class="marker-id">' + self.count + '</span>' + '</div>';
+
+              if (self.color === '#ffffff') {
+                  console.log(self.color);
+              }
+          }
         }
 
         var point = this.getProjection().fromLatLngToDivPixel(self.latlng);

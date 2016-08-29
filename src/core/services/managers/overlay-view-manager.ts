@@ -35,7 +35,11 @@ export class OverlayViewManager {
         position: {lat: overlayView.latitude, lng: overlayView.longitude},
         objectId: overlayView.objectId,
         objectContent: overlayView.objectContent,
-        class: overlayView.class
+        class: overlayView.class,
+        type: overlayView.type,
+        textColor: overlayView.textColor,
+        color: overlayView.color,
+        count: overlayView.count
     });
 
     this._overlayViews.set(overlayView, overlayViewPromise);

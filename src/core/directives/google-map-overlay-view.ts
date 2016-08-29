@@ -35,7 +35,7 @@ let markerId = 1;
  */
 @Directive({
   selector: 'sebm-google-map-overlay-view',
-  inputs: ['latitude', 'longitude', 'objectId', 'objectContent', 'class'],
+  inputs: ['latitude', 'longitude', 'objectId', 'objectContent', 'class', 'type', 'textColor','color', 'label', 'count'],
   outputs: ['markerClick', 'dragEnd']
 })
 export class SebmGoogleMapOverlayView implements OnDestroy,
@@ -66,6 +66,31 @@ export class SebmGoogleMapOverlayView implements OnDestroy,
    * @type {string}
    */
   class: string;
+
+  /**
+   * The type of an clusterMarker is passed
+   */
+  type: string;
+
+  /**
+   * The color of text in an clusterMarker is passed
+   */
+  textColor: string;
+
+  /**
+   * The color of an clusterMarker is passed
+   */
+  color: string;
+
+   /**
+   * The label of an clusterMarker is passed
+   */
+  label: string;
+
+   /**
+   * The count of available clusterMarkers is passed
+   */
+  count: number;
 
   /**
    * This event emitter gets emitted when the user clicks on the marker.
