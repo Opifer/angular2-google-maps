@@ -39,7 +39,8 @@ export class OverlayViewManager {
         type: overlayView.type,
         textColor: overlayView.textColor,
         color: overlayView.color,
-        count: overlayView.count
+        count: overlayView.count,
+        customHtml: overlayView.customHtml
     });
 
     this._overlayViews.set(overlayView, overlayViewPromise);
