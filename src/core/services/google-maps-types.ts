@@ -316,6 +316,11 @@ export class OverlayViewClass {
         }
 
         google.maps.event.addDomListener(div, "click", function(event: any) {
+          if (self.type == 'cluster') {
+            let map = self.overlayView.getMap();
+            map.setZoom(17);
+          }
+
           google.maps.event.trigger(self.overlayView, "click");
           event.stopPropagation();
         });
