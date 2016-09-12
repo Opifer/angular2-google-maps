@@ -308,19 +308,10 @@ export class OverlayViewClass {
             div.className += ' marker-'+self.class;
           }
 
-          if (self.type === 'cluster'){
-            div.innerHTML = '<span class="marker-label">'+ self.Content +'</span>' + '<div style="background-color:' + self.color + '" class="cluster-background">'+ '<span style="color:' + self.textColor + '" class="marker-id">' + self.count + '</span>' + '</div>';
-          } else {
-            div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
-          }
+          div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
         }
 
         google.maps.event.addDomListener(div, "click", function(event: any) {
-          if (self.type == 'cluster') {
-            let map = self.overlayView.getMap();
-            map.setZoom(17);
-          }
-
           google.maps.event.trigger(self.overlayView, "click");
           event.stopPropagation();
         });
