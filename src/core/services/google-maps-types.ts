@@ -311,13 +311,15 @@ export class OverlayViewClass {
           div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
         }
 
-        google.maps.event.trigger(self.overlayView, "click");
-        google.maps.event.addDomListener(div, "touchend", handler);
+        google.maps.event.addDomListener(div, "click", function(event: any) {
+          google.maps.event.trigger(self.overlayView, "click");
+          event.stopPropagation();
+        });
 
-        function handler(event:any) {
-            google.maps.event.trigger(self.overlayView, "click");
-            event.stopPropagation();
-        }        
+        google.maps.event.addDomListener(div, "touchend", function(event: any) {
+          google.maps.event.trigger(self.overlayView, "touchend");
+          event.stopPropagation();
+        });       
 
         var panes = this.getPanes();
         panes.overlayImage.appendChild(div);
