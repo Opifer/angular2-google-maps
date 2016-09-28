@@ -264,8 +264,6 @@ export class OverlayViewClass {
   label: string;
   count: number;
 
-  customHtml: Function;
-
   constructor(options: any, google: any) {
     this.latlng = new google.maps.LatLng(options.position.lat, options.position.lng);
     this.ID = options.objectId;
@@ -275,8 +273,6 @@ export class OverlayViewClass {
     this.textColor = options.textColor;
     this.color = options.color;
     this.count = options.count;
-
-    this.customHtml = options.customHtml;
 
     this.overlayView = new google.maps.OverlayView();
 
@@ -299,39 +295,46 @@ export class OverlayViewClass {
 
       if (!div) {
 
-        if (self.customHtml) {
-          div = this.div = self.customHtml(this, self);
-        } else {
-          div = this.div = document.createElement('div');
-          div.className = 'marker';
-          if (self.class != null) {
-            div.className += ' marker-'+self.class;
-          }
+        div = this.div = document.createElement('div');
 
-          div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
+        div.className = 'marker';
+
+        if (self.class != null) {
+            div.className += ' marker-'+self.class;
         }
 
+        div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
+
         google.maps.event.addDomListener(div, "click", function(event: any) {
-          google.maps.event.trigger(self.overlayView, "click");
-          event.stopPropagation();
+            google.maps.event.trigger(self.overlayView, "click");
+            google.maps.event.addDomListener(div, "touchend", handler);
+            event.stopPropagation();
         });
 
         var panes = this.getPanes();
-        panes.overlayImage.appendChild(div);
-      }
+            panes.overlayImage.appendChild(div);
 
-      var point = this.getProjection().fromLatLngToDivPixel(self.latlng);
+          if (self.type === 'cluster'){
+              div.innerHTML = '<span class="marker-label">'+ self.Content +'</span>' + '<div style="background-color:' + self.color + '" class="cluster-background">'+ '<span style="color:' + self.textColor + '" class="marker-id">' + self.count + '</span>' + '</div>';
 
-      if (point) {
-        div.style.left = point.x + 'px';
-        div.style.top = point.y + 'px';
+              if (self.color === '#ffffff') {
+                  console.log(self.color);
+              }
+          }
+        }
+
+        var point = this.getProjection().fromLatLngToDivPixel(self.latlng);
+
+        if (point) {
+            div.style.left = point.x + 'px';
+            div.style.top = point.y + 'px';
+        }
       }
     }
-  }
 
-  getOverlayView() : any {
-    return this.overlayView;
-  }
+    getOverlayView() : any {
+      return this.overlayView;
+    }
 }
 
 export interface SizeLiteral {
