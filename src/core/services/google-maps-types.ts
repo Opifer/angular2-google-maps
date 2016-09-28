@@ -305,12 +305,15 @@ export class OverlayViewClass {
 
         div.innerHTML = '<span class="marker-id">'+ self.ID +'</span>';
 
-        google.maps.event.addDomListener(div, "click", function(event: any) {
+         google.maps.event.addDomListener(div, "click", handler);
+         google.maps.event.addDomListener(div, "touchend", handler);
+         
+        function handler(event:any) {
             google.maps.event.trigger(self.overlayView, "click");
-            google.maps.event.addDomListener(div, "touchend", handler);
             event.stopPropagation();
-        });
+        }
 
+       
         var panes = this.getPanes();
             panes.overlayImage.appendChild(div);
 
@@ -318,9 +321,9 @@ export class OverlayViewClass {
               div.innerHTML = '<span class="marker-label">'+ self.Content +'</span>' + '<div style="background-color:' + self.color + '" class="cluster-background">'+ '<span style="color:' + self.textColor + '" class="marker-id">' + self.count + '</span>' + '</div>';
 
               if (self.color === '#ffffff') {
-                  console.log(self.color);
+                  // console.log(self.color);              
               }
-          }
+          }    
         }
 
         var point = this.getProjection().fromLatLngToDivPixel(self.latlng);
@@ -332,7 +335,7 @@ export class OverlayViewClass {
       }
     }
 
-    getOverlayView() : any {
+  getOverlayView() : any {
       return this.overlayView;
     }
 }
