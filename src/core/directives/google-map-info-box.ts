@@ -147,7 +147,7 @@ export class SebmGoogleMapInfoBox implements OnDestroy, OnChanges {
     /*
      * The offset (in pixels) from the top left corner of the InfoBox (or the bottom left corner if the alignBottom property is true) to the map pixel corresponding to position.
      */
-    pixelOffset: mapTypes.SizeLiteral = { width: -118, height: -20 };
+    pixelOffset: mapTypes.SizeLiteral = { width: -131, height: -20 };
 
     /*
      *
